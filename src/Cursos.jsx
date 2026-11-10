@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import LoginButton from "./LoginButton";
+import LogoutButton from "./LogoutButton";
 
 const API_URL = "/api";
+const NAMESPACE = "https://social-insper.com/";
 
 export default function Cursos() {
   const [cursos, setCursos] = useState([]);
@@ -13,19 +17,47 @@ export default function Cursos() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // TODO (etapa Auth0): token e isAdmin
-  const isAdmin = true;
+  const [token, setToken] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Buscar cursos ao carregar a página
+  const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+
+  // 1. Depois do login, pega o token e descobre se é ADMIN
   useEffect(() => {
-    fetchCursos();
-  }, []);
+    const fetchTokenAndRoles = async () => {
+      try {
+        const accessToken = await getAccessTokenSilently();
+        setToken(accessToken);
+
+        const payload = JSON.parse(atob(accessToken.split(".")[1]));
+        const roles = payload[`${NAMESPACE}roles`] || [];
+        setIsAdmin(roles.includes("ADMIN"));
+      } catch (e) {
+        console.error("Erro ao buscar token:", e);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchTokenAndRoles();
+    }
+  }, [isAuthenticated, getAccessTokenSilently]);
+
+  // 2. Com o token em mãos, busca os cursos
+  useEffect(() => {
+    if (token) {
+      fetchCursos();
+    }
+  }, [token]);
 
   const fetchCursos = async () => {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(`${API_URL}/courses`);
+      const response = await fetch(`${API_URL}/courses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error(`Erro ao buscar cursos: ${response.status}`);
       }
@@ -59,6 +91,7 @@ export default function Cursos() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -82,6 +115,9 @@ export default function Cursos() {
       setError("");
       const response = await fetch(`${API_URL}/courses/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -99,12 +135,36 @@ export default function Cursos() {
     return new Date(dataString).toLocaleString("pt-BR");
   };
 
+  if (isLoading) {
+    return <div className="p-6">Carregando...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen p-6 bg-gray-50 font-sans">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6">
+          <h1 className="text-3xl font-bold mb-4">Cursos</h1>
+          <LoginButton />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-6 bg-gray-50 font-sans">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow p-6 mb-6">
-          <h1 className="text-3xl font-bold">Cursos</h1>
+        {/* Header com usuário logado */}
+        <div className="bg-white rounded-2xl shadow p-6 mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Cursos</h1>
+            <p className="text-gray-600">
+              {user.email}{" "}
+              <span className="inline-block ml-2 px-2 py-0.5 bg-blue-500 text-white text-sm rounded">
+                {isAdmin ? "ADMIN" : "USER"}
+              </span>
+            </p>
+          </div>
+          <LogoutButton />
         </div>
 
         {/* Mensagem de erro */}
