@@ -169,7 +169,7 @@ export default function Tarefas() {
           </div>
         )}
 
-        {isAdmin && (
+        
           <div className="bg-white rounded-2xl shadow p-6 mb-6">
             <h2 className="text-xl font-bold mb-4">Cadastrar Tarefa</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -227,7 +227,7 @@ export default function Tarefas() {
               </button>
             </form>
           </div>
-        )}
+    
 
         <div className="bg-white rounded-2xl shadow p-6">
           <div className="flex justify-between items-center mb-4">
