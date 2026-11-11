@@ -93,7 +93,7 @@ export default function Tarefas() {
         titulo: formData.titulo,
         descricao: formData.descricao,
         prioridade: Number(formData.prioridade),
-        email: user?.email, 
+        emailResponsavel: user?.email, 
       }),
     }); 
 
