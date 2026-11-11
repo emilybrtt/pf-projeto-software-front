@@ -71,6 +71,7 @@ export default function Tarefas() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -78,22 +79,23 @@ export default function Tarefas() {
       setError("Todos os campos são obrigatórios");
       return;
     }
-
-    try {
-      setSubmitting(true);
-      setError("");
+     try {
+    setSubmitting(true);
+    const token = await getAccessTokenSilently();
 
       const response = await fetch(`${API_URL}/tarefas`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...formData,
-          prioridade: Number(formData.prioridade),
-        }),
-      });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        prioridade: Number(formData.prioridade),
+        email: user?.email, 
+      }),
+    }); 
 
       if (!response.ok) {
         throw new Error(`Erro ao criar tarefa: ${response.status}`);
