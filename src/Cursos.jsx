@@ -6,8 +6,8 @@ import LogoutButton from "./LogoutButton";
 const API_URL = "/api";
 const NAMESPACE = "https://social-insper.com/";
 
-export default function Cursos() {
-  const [cursos, setCursos] = useState([]);
+export default function Tarefas() {
+  const [Tarefas, setTarefas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -42,14 +42,14 @@ export default function Cursos() {
     }
   }, [isAuthenticated, getAccessTokenSilently]);
 
-  // 2. Com o token em mãos, busca os cursos
+  // 2. Com o token em mãos, busca os Tarefas
   useEffect(() => {
     if (token) {
-      fetchCursos();
+      fetchTarefas();
     }
   }, [token]);
 
-  const fetchCursos = async () => {
+  const fetchTarefas = async () => {
     try {
       setLoading(true);
       setError("");
@@ -59,10 +59,10 @@ export default function Cursos() {
         },
       });
       if (!response.ok) {
-        throw new Error(`Erro ao buscar cursos: ${response.status}`);
+        throw new Error(`Erro ao buscar Tarefas: ${response.status}`);
       }
       const data = await response.json();
-      setCursos(Array.isArray(data) ? data : []);
+      setTarefas(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -101,7 +101,7 @@ export default function Cursos() {
       }
 
       const novoCurso = await response.json();
-      setCursos((prev) => [...prev, novoCurso]);
+      setTarefas((prev) => [...prev, novoCurso]);
       setFormData({ code: "", name: "", instructor: "" });
     } catch (err) {
       setError(err.message);
@@ -124,7 +124,7 @@ export default function Cursos() {
         throw new Error(`Erro ao excluir curso: ${response.status}`);
       }
 
-      setCursos((prev) => prev.filter((c) => c.id !== id));
+      setTarefas((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
       setError(err.message);
     }
@@ -143,7 +143,7 @@ export default function Cursos() {
     return (
       <div className="min-h-screen p-6 bg-gray-50 font-sans">
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6">
-          <h1 className="text-3xl font-bold mb-4">Cursos</h1>
+          <h1 className="text-3xl font-bold mb-4">Tarefas</h1>
           <LoginButton />
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function Cursos() {
         {/* Header com usuário logado */}
         <div className="bg-white rounded-2xl shadow p-6 mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Cursos</h1>
+            <h1 className="text-3xl font-bold">Tarefas</h1>
             <p className="text-gray-600">
               {user.email}{" "}
               <span className="inline-block ml-2 px-2 py-0.5 bg-blue-500 text-white text-sm rounded">
@@ -238,9 +238,9 @@ export default function Cursos() {
         {/* Lista */}
         <div className="bg-white rounded-2xl shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Cursos Cadastrados</h2>
+            <h2 className="text-xl font-bold">Tarefas Cadastrados</h2>
             <button
-              onClick={fetchCursos}
+              onClick={fetchTarefas}
               className="px-3 py-1 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
             >
               Recarregar
@@ -248,12 +248,12 @@ export default function Cursos() {
           </div>
 
           {loading ? (
-            <p className="text-gray-600">Carregando cursos...</p>
-          ) : cursos.length === 0 ? (
+            <p className="text-gray-600">Carregando Tarefas...</p>
+          ) : Tarefas.length === 0 ? (
             <p className="text-gray-600">Nenhum curso cadastrado ainda.</p>
           ) : (
             <div className="grid gap-4">
-              {cursos.map((curso) => (
+              {Tarefas.map((curso) => (
                 <div key={curso.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start">
                     <div>

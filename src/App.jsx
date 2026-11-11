@@ -1,8 +1,8 @@
 import './App.css'
-import Cursos from './Cursos'
+import Tarefas from './Tarefas'
 
 function App() {
-  return <Cursos />
+  return <Tarefas />
 }
 
 export default App
